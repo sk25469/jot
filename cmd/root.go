@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/sahilsarwar/jot/config"
+	"github.com/sahilsarwar/jot/app"
 	"github.com/spf13/cobra"
 )
 
@@ -17,7 +17,10 @@ without ever leaving the terminal.
 
 All notes are stored as plain markdown files in ~/.jot/notes/`,
 	PersistentPreRunE: func(cmd *cobra.Command, args []string) error {
-		return config.InitConfig()
+		return app.Initialize()
+	},
+	PersistentPostRunE: func(cmd *cobra.Command, args []string) error {
+		return app.Cleanup()
 	},
 }
 

@@ -3,7 +3,7 @@ package cmd
 import (
 	"strings"
 
-	"github.com/sahilsarwar/jot/notes"
+	"github.com/sahilsarwar/jot/app"
 	"github.com/spf13/cobra"
 )
 
@@ -17,5 +17,5 @@ var openCmd = &cobra.Command{
 
 func runOpenCommand(cmd *cobra.Command, args []string) error {
 	identifier := strings.Join(args, " ")
-	return notes.OpenNote(identifier)
+	return app.Instance.NoteService.OpenNote(identifier)
 }

@@ -4,7 +4,8 @@ import (
 	"fmt"
 	"sort"
 
-	"github.com/sahilsarwar/jot/notes"
+	"github.com/sahilsarwar/jot/app"
+	"github.com/sahilsarwar/jot/models"
 	"github.com/spf13/cobra"
 )
 
@@ -16,7 +17,7 @@ var statsCmd = &cobra.Command{
 }
 
 func runStatsCommand(cmd *cobra.Command, args []string) error {
-	stats, err := notes.GetStats()
+	stats, err := app.Instance.NoteService.GetStats()
 	if err != nil {
 		return err
 	}
@@ -25,17 +26,22 @@ func runStatsCommand(cmd *cobra.Command, args []string) error {
 	return nil
 }
 
-func printNoteStatistics(stats map[string]interface{}) {
-	totalNotes := stats["total_notes"].(int)
-	thisWeek := stats["this_week"].(int)
-	tagCounts := stats["tag_counts"].(map[string]int)
-
+func printNoteStatistics(stats *models.StatsResult) {
 	fmt.Printf("📊 Note Statistics\n\n")
-	fmt.Printf("Total notes: %d\n", totalNotes)
-	fmt.Printf("This week: %d\n", thisWeek)
+	fmt.Printf("Total notes: %d\n", stats.TotalNotes)
+	fmt.Printf("This week: %d\n", stats.NotesThisWeek)
+	fmt.Printf("Created today: %d\n", stats.CreatedToday)
+	fmt.Printf("Total words: %d\n", stats.WordCount)
 
-	if len(tagCounts) > 0 {
-		printTopTags(tagCounts)
+	if len(stats.TagCounts) > 0 {
+		printTopTags(stats.TagCounts)
+	}
+
+	if len(stats.ModeStats) > 0 {
+		fmt.Printf("\nModes:\n")
+		for mode, count := range stats.ModeStats {
+			fmt.Printf("  %s (%d)\n", mode, count)
+		}
 	}
 }
 

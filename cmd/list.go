@@ -4,7 +4,8 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/sahilsarwar/jot/notes"
+	"github.com/sahilsarwar/jot/app"
+	"github.com/sahilsarwar/jot/models"
 	"github.com/spf13/cobra"
 )
 
@@ -19,7 +20,7 @@ func runListCommand(cmd *cobra.Command, args []string) error {
 	tagFilter, _ := cmd.Flags().GetString("tag")
 	modeFilter, _ := cmd.Flags().GetString("mode")
 
-	notesList, err := notes.ListNotes(tagFilter, modeFilter)
+	notesList, err := app.Instance.NoteService.ListNotes(tagFilter, modeFilter)
 	if err != nil {
 		return err
 	}
@@ -33,14 +34,14 @@ func runListCommand(cmd *cobra.Command, args []string) error {
 	return nil
 }
 
-func printNotesList(notesList []*notes.Note) {
+func printNotesList(notesList []*models.Note) {
 	// Print header
 	fmt.Printf("%-8s %-12s %-30s %s\n", "ID", "DATE", "TITLE", "TAGS")
 	fmt.Printf("%-8s %-12s %-30s %s\n", "--------", "----", "-----", "----")
 
 	// Print notes
 	for _, note := range notesList {
-		dateShort := note.Date.Format("2006-01-02")
+		dateShort := note.CreatedAt.Format("2006-01-02")
 		title := formatNoteTitle(note.Title)
 		tagsStr := strings.Join(note.Tags, ", ")
 

@@ -94,3 +94,7 @@ storage_path: "` + getDefaultStoragePath() + `"
 func GetNotesDir() string {
 	return AppConfig.StoragePath
 }
+
+func GetJotDir() string {
+	return getJotDir()
+}

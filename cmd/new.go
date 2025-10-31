@@ -3,7 +3,7 @@ package cmd
 import (
 	"strings"
 
-	"github.com/sahilsarwar/jot/notes"
+	"github.com/sahilsarwar/jot/app"
 	"github.com/spf13/cobra"
 )
 
@@ -20,7 +20,7 @@ func runNewCommand(cmd *cobra.Command, args []string) error {
 	tags, _ := cmd.Flags().GetStringSlice("tag")
 	mode, _ := cmd.Flags().GetString("mode")
 
-	_, err := notes.CreateNote(title, tags, mode)
+	_, err := app.Instance.NoteService.CreateNote(title, tags, mode)
 	return err
 }
 
