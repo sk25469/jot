@@ -12,8 +12,10 @@ var openCmd = &cobra.Command{
 	Short: "Open a note in your editor",
 	Long:  `Open a note by ID or partial title match in your configured editor.`,
 	Args:  cobra.MinimumNArgs(1),
-	RunE: func(cmd *cobra.Command, args []string) error {
-		identifier := strings.Join(args, " ")
-		return notes.OpenNote(identifier)
-	},
+	RunE:  runOpenCommand,
+}
+
+func runOpenCommand(cmd *cobra.Command, args []string) error {
+	identifier := strings.Join(args, " ")
+	return notes.OpenNote(identifier)
 }

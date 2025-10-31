@@ -12,46 +12,55 @@ var statsCmd = &cobra.Command{
 	Use:   "stats",
 	Short: "Show note statistics",
 	Long:  `Display statistics about your notes including total count, weekly activity, and popular tags.`,
-	RunE: func(cmd *cobra.Command, args []string) error {
-		stats, err := notes.GetStats()
-		if err != nil {
-			return err
-		}
+	RunE:  runStatsCommand,
+}
 
-		totalNotes := stats["total_notes"].(int)
-		thisWeek := stats["this_week"].(int)
-		tagCounts := stats["tag_counts"].(map[string]int)
+func runStatsCommand(cmd *cobra.Command, args []string) error {
+	stats, err := notes.GetStats()
+	if err != nil {
+		return err
+	}
 
-		fmt.Printf("📊 Note Statistics\n\n")
-		fmt.Printf("Total notes: %d\n", totalNotes)
-		fmt.Printf("This week: %d\n", thisWeek)
+	printNoteStatistics(stats)
+	return nil
+}
 
-		if len(tagCounts) > 0 {
-			fmt.Printf("\nMost used tags:\n")
-			
-			// Sort tags by count
-			type tagCount struct {
-				tag   string
-				count int
-			}
-			var tagList []tagCount
-			for tag, count := range tagCounts {
-				tagList = append(tagList, tagCount{tag, count})
-			}
-			sort.Slice(tagList, func(i, j int) bool {
-				return tagList[i].count > tagList[j].count
-			})
+func printNoteStatistics(stats map[string]interface{}) {
+	totalNotes := stats["total_notes"].(int)
+	thisWeek := stats["this_week"].(int)
+	tagCounts := stats["tag_counts"].(map[string]int)
 
-			// Show top 5 tags
-			limit := 5
-			if len(tagList) < limit {
-				limit = len(tagList)
-			}
-			for i := 0; i < limit; i++ {
-				fmt.Printf("  %s (%d)\n", tagList[i].tag, tagList[i].count)
-			}
-		}
+	fmt.Printf("📊 Note Statistics\n\n")
+	fmt.Printf("Total notes: %d\n", totalNotes)
+	fmt.Printf("This week: %d\n", thisWeek)
 
-		return nil
-	},
+	if len(tagCounts) > 0 {
+		printTopTags(tagCounts)
+	}
+}
+
+func printTopTags(tagCounts map[string]int) {
+	fmt.Printf("\nMost used tags:\n")
+	
+	// Sort tags by count
+	type tagCount struct {
+		tag   string
+		count int
+	}
+	var tagList []tagCount
+	for tag, count := range tagCounts {
+		tagList = append(tagList, tagCount{tag, count})
+	}
+	sort.Slice(tagList, func(i, j int) bool {
+		return tagList[i].count > tagList[j].count
+	})
+
+	// Show top 5 tags
+	limit := 5
+	if len(tagList) < limit {
+		limit = len(tagList)
+	}
+	for i := 0; i < limit; i++ {
+		fmt.Printf("  %s (%d)\n", tagList[i].tag, tagList[i].count)
+	}
 }

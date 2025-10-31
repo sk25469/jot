@@ -12,18 +12,24 @@ var newCmd = &cobra.Command{
 	Short: "Create a new note",
 	Long:  `Create a new markdown note with optional title, tags, and mode.`,
 	Args:  cobra.ArbitraryArgs,
-	RunE: func(cmd *cobra.Command, args []string) error {
-		title := strings.Join(args, " ")
-		if title == "" {
-			title = "Untitled"
-		}
+	RunE:  runNewCommand,
+}
 
-		tags, _ := cmd.Flags().GetStringSlice("tag")
-		mode, _ := cmd.Flags().GetString("mode")
+func runNewCommand(cmd *cobra.Command, args []string) error {
+	title := getNoteTitleFromArgs(args)
+	tags, _ := cmd.Flags().GetStringSlice("tag")
+	mode, _ := cmd.Flags().GetString("mode")
 
-		_, err := notes.CreateNote(title, tags, mode)
-		return err
-	},
+	_, err := notes.CreateNote(title, tags, mode)
+	return err
+}
+
+func getNoteTitleFromArgs(args []string) string {
+	title := strings.Join(args, " ")
+	if title == "" {
+		title = "Untitled"
+	}
+	return title
 }
 
 func init() {

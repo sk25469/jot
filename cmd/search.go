@@ -13,29 +13,34 @@ var searchCmd = &cobra.Command{
 	Short: "Search notes",
 	Long:  `Search notes by title, content, or tags using fuzzy matching.`,
 	Args:  cobra.MinimumNArgs(1),
-	RunE: func(cmd *cobra.Command, args []string) error {
-		query := strings.Join(args, " ")
+	RunE:  runSearchCommand,
+}
 
-		results, err := notes.SearchNotes(query)
-		if err != nil {
-			return err
-		}
+func runSearchCommand(cmd *cobra.Command, args []string) error {
+	query := strings.Join(args, " ")
 
-		if len(results) == 0 {
-			fmt.Printf("No notes found matching: %s\n", query)
-			return nil
-		}
+	results, err := notes.SearchNotes(query)
+	if err != nil {
+		return err
+	}
 
-		fmt.Printf("Found %d note(s) matching: %s\n\n", len(results), query)
-
-		for _, note := range results {
-			fmt.Printf("→ %s %s\n", note.Date.Format("2006-01-02"), note.Title)
-			if len(note.Tags) > 0 {
-				fmt.Printf("  Tags: %s\n", strings.Join(note.Tags, ", "))
-			}
-			fmt.Println()
-		}
-
+	if len(results) == 0 {
+		fmt.Printf("No notes found matching: %s\n", query)
 		return nil
-	},
+	}
+
+	printSearchResults(results, query)
+	return nil
+}
+
+func printSearchResults(results []*notes.Note, query string) {
+	fmt.Printf("Found %d note(s) matching: %s\n\n", len(results), query)
+
+	for _, note := range results {
+		fmt.Printf("→ %s %s\n", note.Date.Format("2006-01-02"), note.Title)
+		if len(note.Tags) > 0 {
+			fmt.Printf("  Tags: %s\n", strings.Join(note.Tags, ", "))
+		}
+		fmt.Println()
+	}
 }

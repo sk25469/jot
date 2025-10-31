@@ -1,6 +1,7 @@
 package notes
 
 import (
+	"crypto/sha1"
 	"fmt"
 	"os"
 	"os/exec"
@@ -141,7 +142,7 @@ func OpenNote(identifier string) error {
 
 	var targetNote *Note
 	
-	// Try to find by ID first
+	// Try to find by exact ID first
 	for _, note := range notes {
 		if note.ID == identifier {
 			targetNote = note
@@ -149,7 +150,31 @@ func OpenNote(identifier string) error {
 		}
 	}
 
-	// If not found by ID, try partial title match
+	// If not found by exact ID, try partial ID match (like git)
+	if targetNote == nil {
+		matches := []*Note{}
+		for _, note := range notes {
+			if strings.HasPrefix(note.ID, identifier) {
+				matches = append(matches, note)
+			}
+		}
+		
+		if len(matches) == 1 {
+			targetNote = matches[0]
+		} else if len(matches) > 1 {
+			return fmt.Errorf("ambiguous ID '%s', could match: %s", 
+				identifier, 
+				func() string {
+					var ids []string
+					for _, n := range matches {
+						ids = append(ids, n.ID)
+					}
+					return strings.Join(ids, ", ")
+				}())
+		}
+	}
+
+	// If still not found, try partial title match
 	if targetNote == nil {
 		for _, note := range notes {
 			if strings.Contains(strings.ToLower(note.Title), strings.ToLower(identifier)) {
@@ -201,6 +226,15 @@ func GetStats() (map[string]interface{}, error) {
 
 // Helper functions
 
+func generateShortID(filename string) string {
+	// Generate a short hash from the filename for a git-like ID
+	h := sha1.New()
+	h.Write([]byte(filename))
+	hash := fmt.Sprintf("%x", h.Sum(nil))
+	// Return first 7 characters like git
+	return hash[:7]
+}
+
 func slugify(text string) string {
 	// Convert to lowercase and replace spaces/special chars with hyphens
 	reg := regexp.MustCompile(`[^a-zA-Z0-9]+`)
@@ -239,14 +273,9 @@ func parseNoteFile(filePath string) (*Note, error) {
 
 	contentStr := string(content)
 	
-	// Extract filename parts for ID
+	// Generate short hash ID from filename
 	filename := filepath.Base(filePath)
-	parts := strings.Split(filename, "-")
-	if len(parts) < 4 {
-		return nil, fmt.Errorf("invalid filename format")
-	}
-	
-	id := strings.Join(parts[:3], "-") // timestamp part
+	id := generateShortID(filename)
 	
 	// Parse metadata from content
 	lines := strings.Split(contentStr, "\n")

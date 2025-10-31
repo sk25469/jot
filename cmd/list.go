@@ -12,39 +12,47 @@ var listCmd = &cobra.Command{
 	Use:   "list",
 	Short: "List all notes",
 	Long:  `List all notes with optional filtering by tag and mode.`,
-	RunE: func(cmd *cobra.Command, args []string) error {
-		tagFilter, _ := cmd.Flags().GetString("tag")
-		modeFilter, _ := cmd.Flags().GetString("mode")
+	RunE:  runListCommand,
+}
 
-		notesList, err := notes.ListNotes(tagFilter, modeFilter)
-		if err != nil {
-			return err
-		}
+func runListCommand(cmd *cobra.Command, args []string) error {
+	tagFilter, _ := cmd.Flags().GetString("tag")
+	modeFilter, _ := cmd.Flags().GetString("mode")
 
-		if len(notesList) == 0 {
-			fmt.Println("No notes found.")
-			return nil
-		}
+	notesList, err := notes.ListNotes(tagFilter, modeFilter)
+	if err != nil {
+		return err
+	}
 
-		// Print header
-		fmt.Printf("%-3s %-12s %-30s %s\n", "ID", "DATE", "TITLE", "TAGS")
-		fmt.Printf("%-3s %-12s %-30s %s\n", "---", "----", "-----", "----")
-
-		// Print notes
-		for i, note := range notesList {
-			idShort := fmt.Sprintf("%03d", i+1)
-			dateShort := note.Date.Format("2006-01-02")
-			title := note.Title
-			if len(title) > 30 {
-				title = title[:27] + "..."
-			}
-			tagsStr := strings.Join(note.Tags, ", ")
-
-			fmt.Printf("%-3s %-12s %-30s %s\n", idShort, dateShort, title, tagsStr)
-		}
-
+	if len(notesList) == 0 {
+		fmt.Println("No notes found.")
 		return nil
-	},
+	}
+
+	printNotesList(notesList)
+	return nil
+}
+
+func printNotesList(notesList []*notes.Note) {
+	// Print header
+	fmt.Printf("%-8s %-12s %-30s %s\n", "ID", "DATE", "TITLE", "TAGS")
+	fmt.Printf("%-8s %-12s %-30s %s\n", "--------", "----", "-----", "----")
+
+	// Print notes
+	for _, note := range notesList {
+		dateShort := note.Date.Format("2006-01-02")
+		title := formatNoteTitle(note.Title)
+		tagsStr := strings.Join(note.Tags, ", ")
+
+		fmt.Printf("%-8s %-12s %-30s %s\n", note.ID, dateShort, title, tagsStr)
+	}
+}
+
+func formatNoteTitle(title string) string {
+	if len(title) > 30 {
+		return title[:27] + "..."
+	}
+	return title
 }
 
 func init() {

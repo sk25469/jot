@@ -6,6 +6,7 @@ A lightning-fast terminal-based note-taking and journaling CLI that feels like g
 
 - **Speed over style** — open → dump thought → close
 - **Text-first** — every note is a plain .md file
+- **Git-like IDs** — short hash identifiers with partial matching support
 - **Searchable & local-first** — your notes are yours, no network dependency
 - **Expandable** — designed for future additions like Git sync, encryption, tags, TUI
 
@@ -36,8 +37,12 @@ jot new "Fix offset reset" --tag kafka --tag debugging --mode dev
 ### List all notes
 ```bash
 jot list
-jot list --tag kafka
-jot list --mode journal
+# ID       DATE         TITLE                    TAGS
+# f4f1c39  2025-10-31   Refactoring complete     refactoring, go
+# 5f3f8ed  2025-10-31   Daily reflection         journal
+
+jot list --tag kafka      # Filter by tag
+jot list --mode journal   # Filter by mode
 ```
 
 ### Search notes
@@ -48,13 +53,37 @@ jot search "debugging"
 
 ### Open a note
 ```bash
+# Open by git-like short hash ID
+jot open f4f1c39
+
+# Open by partial ID (like git commits)
+jot open f4f
+
+# Open by title matching (still works)
 jot open "Fix offset reset"
-jot open 2025-11-01T01-10-05Z
+jot open "daily"
 ```
 
 ### View statistics
 ```bash
 jot stats
+```
+
+## Note IDs
+
+jot uses **git-like short hash IDs** for each note:
+
+- **Unique 7-character IDs** generated from filename (e.g., `f4f1c39`)
+- **Partial matching** - use just the first few characters (e.g., `f4f` instead of `f4f1c39`)
+- **Consistent** - same file always gets the same ID
+- **No more fake sequential numbers** - IDs actually work with `jot open`
+
+### ID Examples
+```bash
+jot list              # Shows real usable IDs
+jot open f4f1c39      # Open by full ID
+jot open f4f          # Open by partial ID
+jot open xyz123       # Error: note not found
 ```
 
 ## Configuration
