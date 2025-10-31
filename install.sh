@@ -33,7 +33,7 @@ if command -v go &> /dev/null; then
     cd $TMP_DIR
     
     # Clone and build
-    git clone https://github.com/sahilsarwar/jot.git
+    git clone https://github.com/sk25469/jot.git
     cd jot
     go build -o jot
     
