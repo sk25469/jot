@@ -5,6 +5,7 @@ jot
 *.dll
 *.so
 *.dylib
+*.html
 
 # Test binary, built with `go test -c`
 *.test
