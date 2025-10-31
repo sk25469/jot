@@ -34,7 +34,7 @@ func CreateNote(title string, tags []string, mode string) (*Note, error) {
 	timestamp := time.Now().UTC().Format("2006-01-02T15-04-05Z")
 	slug := slugify(title)
 	filename := fmt.Sprintf("%s-%s.md", timestamp, slug)
-	
+
 	notesDir := config.GetNotesDir()
 	filePath := filepath.Join(notesDir, filename)
 
@@ -50,7 +50,7 @@ func CreateNote(title string, tags []string, mode string) (*Note, error) {
 
 	// Create note content with metadata header
 	content := generateNoteContent(note)
-	
+
 	// Write file
 	if err := os.WriteFile(filePath, []byte(content), 0644); err != nil {
 		return nil, err
@@ -67,7 +67,7 @@ func CreateNote(title string, tags []string, mode string) (*Note, error) {
 // ListNotes returns all notes, optionally filtered by tag and mode
 func ListNotes(tagFilter, modeFilter string) ([]*Note, error) {
 	notesDir := config.GetNotesDir()
-	
+
 	files, err := filepath.Glob(filepath.Join(notesDir, "*.md"))
 	if err != nil {
 		return nil, err
@@ -141,7 +141,7 @@ func OpenNote(identifier string) error {
 	}
 
 	var targetNote *Note
-	
+
 	// Try to find by exact ID first
 	for _, note := range notes {
 		if note.ID == identifier {
@@ -158,12 +158,12 @@ func OpenNote(identifier string) error {
 				matches = append(matches, note)
 			}
 		}
-		
+
 		if len(matches) == 1 {
 			targetNote = matches[0]
 		} else if len(matches) > 1 {
-			return fmt.Errorf("ambiguous ID '%s', could match: %s", 
-				identifier, 
+			return fmt.Errorf("ambiguous ID '%s', could match: %s",
+				identifier,
 				func() string {
 					var ids []string
 					for _, n := range matches {
@@ -272,11 +272,11 @@ func parseNoteFile(filePath string) (*Note, error) {
 	}
 
 	contentStr := string(content)
-	
+
 	// Generate short hash ID from filename
 	filename := filepath.Base(filePath)
 	id := generateShortID(filename)
-	
+
 	// Parse metadata from content
 	lines := strings.Split(contentStr, "\n")
 	note := &Note{
@@ -297,7 +297,7 @@ func parseNoteFile(filePath string) (*Note, error) {
 				break
 			}
 		}
-		
+
 		if inMetadata {
 			if strings.HasPrefix(line, "title:") {
 				note.Title = strings.TrimSpace(strings.TrimPrefix(line, "title:"))

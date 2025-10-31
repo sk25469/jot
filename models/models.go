@@ -43,8 +43,8 @@ type Config struct {
 // SearchResult represents a full-text search result
 type SearchResult struct {
 	Note
-	Rank     float64 `json:"rank"`     // Search relevance rank
-	Snippet  string  `json:"snippet"`  // Highlighted content snippet
+	Rank      float64 `json:"rank"`       // Search relevance rank
+	Snippet   string  `json:"snippet"`    // Highlighted content snippet
 	MatchType string  `json:"match_type"` // "title", "content", "tags"
 }
 
@@ -72,10 +72,10 @@ func DefaultListFilter() ListFilter {
 
 // StatsResult represents statistics about notes
 type StatsResult struct {
-	TotalNotes    int               `json:"total_notes"`
-	NotesThisWeek int               `json:"notes_this_week"`
-	TagCounts     map[string]int    `json:"tag_counts"`
-	ModeStats     map[string]int    `json:"mode_stats"`
-	WordCount     int               `json:"word_count"`
-	CreatedToday  int               `json:"created_today"`
+	TotalNotes    int            `json:"total_notes"`
+	NotesThisWeek int            `json:"notes_this_week"`
+	TagCounts     map[string]int `json:"tag_counts"`
+	ModeStats     map[string]int `json:"mode_stats"`
+	WordCount     int            `json:"word_count"`
+	CreatedToday  int            `json:"created_today"`
 }

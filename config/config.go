@@ -82,12 +82,12 @@ func getDefaultEditor() string {
 
 func createDefaultConfig() error {
 	configPath := filepath.Join(getJotDir(), "config.yaml")
-	
+
 	defaultConfig := `editor: "` + getDefaultEditor() + `"
 default_mode: "dev"
 storage_path: "` + getDefaultStoragePath() + `"
 `
-	
+
 	return os.WriteFile(configPath, []byte(defaultConfig), 0644)
 }
 

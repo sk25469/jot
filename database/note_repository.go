@@ -105,15 +105,15 @@ func (r *NoteRepository) GetByID(id string) (*models.Note, error) {
 		GROUP BY n.id`
 
 	row := r.db.conn.QueryRow(query, id)
-	
+
 	note := &models.Note{}
 	var tagsStr string
-	
+
 	err := row.Scan(
 		&note.ID, &note.Title, &note.Mode, &note.FilePath, &note.FileName,
 		&note.ContentHash, &note.CreatedAt, &note.UpdatedAt,
 		&note.ContentPreview, &note.WordCount, &tagsStr)
-	
+
 	if err != nil {
 		if err == sql.ErrNoRows {
 			return nil, nil
@@ -138,7 +138,7 @@ func (r *NoteRepository) List(filter models.ListFilter) ([]*models.Note, error) 
 		FROM notes n
 		LEFT JOIN note_tags nt ON n.id = nt.note_id
 		LEFT JOIN tags t ON nt.tag_id = t.id`
-	
+
 	var conditions []string
 	var args []interface{}
 
@@ -196,7 +196,7 @@ func (r *NoteRepository) List(filter models.ListFilter) ([]*models.Note, error) 
 	if filter.Limit > 0 {
 		query += " LIMIT ?"
 		args = append(args, filter.Limit)
-		
+
 		if filter.Offset > 0 {
 			query += " OFFSET ?"
 			args = append(args, filter.Offset)
@@ -213,12 +213,12 @@ func (r *NoteRepository) List(filter models.ListFilter) ([]*models.Note, error) 
 	for rows.Next() {
 		note := &models.Note{}
 		var tagsStr string
-		
+
 		err := rows.Scan(
 			&note.ID, &note.Title, &note.Mode, &note.FilePath, &note.FileName,
 			&note.ContentHash, &note.CreatedAt, &note.UpdatedAt,
 			&note.ContentPreview, &note.WordCount, &tagsStr)
-		
+
 		if err != nil {
 			return nil, fmt.Errorf("failed to scan note: %w", err)
 		}
@@ -260,13 +260,13 @@ func (r *NoteRepository) Search(query string) ([]*models.SearchResult, error) {
 	for rows.Next() {
 		result := &models.SearchResult{}
 		var tagsStr string
-		
+
 		err := rows.Scan(
 			&result.ID, &result.Title, &result.Mode, &result.FilePath, &result.FileName,
 			&result.ContentHash, &result.CreatedAt, &result.UpdatedAt,
 			&result.ContentPreview, &result.WordCount, &tagsStr,
 			&result.Rank, &result.MatchType)
-		
+
 		if err != nil {
 			return nil, fmt.Errorf("failed to scan search result: %w", err)
 		}
@@ -290,17 +290,17 @@ func (r *NoteRepository) generateSnippet(content, query string) string {
 	if content == "" {
 		return ""
 	}
-	
+
 	// Simple snippet generation - in a real implementation you might want
 	// to find the query terms and show context around them
 	if len(content) <= 200 {
 		return content
 	}
-	
+
 	// Try to find the query in the content for context
 	queryLower := strings.ToLower(query)
 	contentLower := strings.ToLower(content)
-	
+
 	if idx := strings.Index(contentLower, queryLower); idx != -1 {
 		// Show context around the match
 		start := idx - 50
@@ -311,7 +311,7 @@ func (r *NoteRepository) generateSnippet(content, query string) string {
 		if end > len(content) {
 			end = len(content)
 		}
-		
+
 		snippet := content[start:end]
 		if start > 0 {
 			snippet = "..." + snippet
@@ -321,7 +321,7 @@ func (r *NoteRepository) generateSnippet(content, query string) string {
 		}
 		return snippet
 	}
-	
+
 	// Fallback to beginning of content
 	return content[:200] + "..."
 }
@@ -359,7 +359,7 @@ func (r *NoteRepository) insertTagsForNote(tx *sql.Tx, noteID string, tags []str
 		// Get or create tag
 		var tagID int
 		err := tx.QueryRow("SELECT id FROM tags WHERE name = ?", tagName).Scan(&tagID)
-		
+
 		if err == sql.ErrNoRows {
 			// Create new tag
 			result, err := tx.Exec(
@@ -368,7 +368,7 @@ func (r *NoteRepository) insertTagsForNote(tx *sql.Tx, noteID string, tags []str
 			if err != nil {
 				return fmt.Errorf("failed to create tag %s: %w", tagName, err)
 			}
-			
+
 			id, err := result.LastInsertId()
 			if err != nil {
 				return fmt.Errorf("failed to get tag ID: %w", err)
@@ -418,12 +418,12 @@ func (r *NoteRepository) fallbackSearch(query string) ([]*models.SearchResult, e
 	for rows.Next() {
 		result := &models.SearchResult{}
 		var tagsStr string
-		
+
 		err := rows.Scan(
 			&result.ID, &result.Title, &result.Mode, &result.FilePath, &result.FileName,
 			&result.ContentHash, &result.CreatedAt, &result.UpdatedAt,
 			&result.ContentPreview, &result.WordCount, &tagsStr)
-		
+
 		if err != nil {
 			return nil, fmt.Errorf("failed to scan fallback search result: %w", err)
 		}

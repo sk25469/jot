@@ -39,7 +39,7 @@ func (s *NoteService) CreateNote(title string, tags []string, mode string) (*mod
 	timestamp := time.Now().UTC().Format("2006-01-02T15-04-05Z")
 	slug := slugify(title)
 	filename := fmt.Sprintf("%s-%s.md", timestamp, slug)
-	
+
 	notesDir := config.GetNotesDir()
 	filePath := filepath.Join(notesDir, filename)
 
@@ -63,7 +63,7 @@ func (s *NoteService) CreateNote(title string, tags []string, mode string) (*mod
 	note.ContentHash = s.generateContentHash(content)
 	note.ContentPreview = s.generatePreview(content)
 	note.WordCount = s.countWords(content)
-	
+
 	// Write file
 	if err := os.WriteFile(filePath, []byte(content), 0644); err != nil {
 		return nil, fmt.Errorf("failed to write note file: %w", err)
@@ -93,7 +93,7 @@ func (s *NoteService) CreateNote(title string, tags []string, mode string) (*mod
 // ListNotes returns notes with optional filtering
 func (s *NoteService) ListNotes(tagFilter, modeFilter string) ([]*models.Note, error) {
 	filter := models.DefaultListFilter()
-	
+
 	if tagFilter != "" {
 		filter.Tags = []string{tagFilter}
 	}
@@ -138,7 +138,7 @@ func (s *NoteService) OpenNote(identifier string) error {
 			for _, n := range matches {
 				ids = append(ids, n.ID)
 			}
-			return fmt.Errorf("ambiguous ID '%s', could match: %s", 
+			return fmt.Errorf("ambiguous ID '%s', could match: %s",
 				identifier, strings.Join(ids, ", "))
 		}
 	}
@@ -173,7 +173,7 @@ func (s *NoteService) GetStats() (*models.StatsResult, error) {
 // SyncFromFileSystem scans the notes directory and syncs with database
 func (s *NoteService) SyncFromFileSystem() error {
 	notesDir := config.GetNotesDir()
-	
+
 	files, err := filepath.Glob(filepath.Join(notesDir, "*.md"))
 	if err != nil {
 		return fmt.Errorf("failed to scan notes directory: %w", err)
@@ -223,7 +223,7 @@ func (s *NoteService) syncNoteFromFile(filePath string) error {
 		// Update if content changed
 		newHash := s.generateContentHash(string(content))
 		if existingNote.ContentHash != newHash {
-			note.ID = existingNote.ID // Preserve ID
+			note.ID = existingNote.ID               // Preserve ID
 			note.CreatedAt = existingNote.CreatedAt // Preserve creation time
 			note.ContentHash = newHash
 			if err := s.noteRepo.Update(note); err != nil {
@@ -240,7 +240,7 @@ func (s *NoteService) syncNoteFromFile(filePath string) error {
 func (s *NoteService) parseNoteFile(filePath, content string) (*models.Note, error) {
 	filename := filepath.Base(filePath)
 	id := generateShortID(filename)
-	
+
 	note := &models.Note{
 		ID:             id,
 		FilePath:       filePath,
@@ -254,7 +254,7 @@ func (s *NoteService) parseNoteFile(filePath, content string) (*models.Note, err
 	// Parse metadata from content
 	lines := strings.Split(content, "\n")
 	inMetadata := false
-	
+
 	for _, line := range lines {
 		line = strings.TrimSpace(line)
 		if line == "---" {
@@ -265,7 +265,7 @@ func (s *NoteService) parseNoteFile(filePath, content string) (*models.Note, err
 				break
 			}
 		}
-		
+
 		if inMetadata {
 			if strings.HasPrefix(line, "title:") {
 				note.Title = strings.TrimSpace(strings.TrimPrefix(line, "title:"))
@@ -354,7 +354,7 @@ func (s *NoteService) generatePreview(content string) string {
 	lines := strings.Split(content, "\n")
 	inMetadata := false
 	contentStart := 0
-	
+
 	for i, line := range lines {
 		if strings.TrimSpace(line) == "---" {
 			if !inMetadata {
@@ -398,24 +398,24 @@ func (s *NoteService) openInEditor(filePath string) error {
 func (s *NoteService) updateFTSIndex(note *models.Note, content string) error {
 	// Get database connection
 	db := s.noteRepo.GetDB()
-	
+
 	// Prepare tags string for FTS
 	tagsStr := strings.Join(note.Tags, " ")
-	
+
 	// Insert or replace in FTS table
 	query := `INSERT OR REPLACE INTO notes_fts (note_id, title, content, tags) VALUES (?, ?, ?, ?)`
 	_, err := db.Connection().Exec(query, note.ID, note.Title, content, tagsStr)
-	
+
 	return err
 }
 
 // deleteFTSIndex removes a note from the FTS index
 func (s *NoteService) deleteFTSIndex(noteID string) error {
-	// Get database connection  
+	// Get database connection
 	db := s.noteRepo.GetDB()
-	
+
 	query := `DELETE FROM notes_fts WHERE note_id = ?`
 	_, err := db.Connection().Exec(query, noteID)
-	
+
 	return err
 }

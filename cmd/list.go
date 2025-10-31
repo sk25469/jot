@@ -51,13 +51,13 @@ func printNotesList(notesList []*models.Note) {
 		// Create the main note entry
 		noteEntry := createNoteEntry(note)
 		fmt.Println(noteEntry)
-		
+
 		// Add spacing between notes, but not after the last one
 		if i < len(notesList)-1 {
 			fmt.Println()
 		}
 	}
-	
+
 	// Footer with total count
 	fmt.Println()
 	fmt.Println(styles.RenderSeparator())
@@ -68,20 +68,20 @@ func printNotesList(notesList []*models.Note) {
 func createNoteEntry(note *models.Note) string {
 	// Format the ID with style
 	idText := styles.IDStyle.Render(note.ID)
-	
+
 	// Format the date
 	dateText := styles.DateStyle.Render(note.CreatedAt.Format("2006-01-02"))
-	
+
 	// Format the title
 	title := note.Title
 	if len(title) > 50 {
 		title = title[:47] + "..."
 	}
 	titleText := styles.ContentStyle.Render(title)
-	
+
 	// Format the mode badge
 	modeText := styles.GetModeStyle(note.Mode).Render(note.Mode)
-	
+
 	// Format tags with colors
 	tagsText := ""
 	if len(note.Tags) > 0 {
@@ -89,7 +89,7 @@ func createNoteEntry(note *models.Note) string {
 	} else {
 		tagsText = lipgloss.NewStyle().Foreground(styles.Subtle).Render("no tags")
 	}
-	
+
 	// Create the first line with ID, date, and title
 	firstLine := lipgloss.JoinHorizontal(
 		lipgloss.Left,
@@ -101,12 +101,12 @@ func createNoteEntry(note *models.Note) string {
 		"  ",
 		titleText,
 	)
-	
+
 	// Create the second line with tags (indented)
 	secondLine := lipgloss.NewStyle().
 		MarginLeft(2).
 		Render("tags: " + tagsText)
-	
+
 	// Combine both lines
 	return lipgloss.JoinVertical(
 		lipgloss.Left,

@@ -1,4 +1,4 @@
-.PHONY: build install clean test
+.PHONY: build install clean test test-verbose test-coverage
 
 # Build the binary
 build:
@@ -22,6 +22,20 @@ clean:
 test:
 	go test ./...
 
+# Run tests with verbose output
+test-verbose:
+	go test ./... -v
+
+# Run tests with coverage report
+test-coverage:
+	go test ./... -cover
+
+# Run tests with detailed coverage report
+test-coverage-detailed:
+	go test ./... -coverprofile=coverage.out
+	go tool cover -html=coverage.out -o coverage.html
+	@echo "Coverage report generated: coverage.html"
+
 # Run with development mode
 dev: build
 	./jot
@@ -29,3 +43,9 @@ dev: build
 # Show version
 version:
 	@echo "jot v1.0.0-MVP"
+
+# Run all quality checks
+check: test test-coverage
+	go vet ./...
+	go fmt ./...
+	@echo "All checks passed!"

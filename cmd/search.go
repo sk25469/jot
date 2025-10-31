@@ -44,7 +44,7 @@ func printSearchResults(results []*models.SearchResult, query string) {
 		Foreground(styles.Warning).
 		Bold(true).
 		Render(fmt.Sprintf("Query: \"%s\"", query))
-	
+
 	fmt.Println(header)
 	fmt.Println(queryText)
 	fmt.Println()
@@ -53,13 +53,13 @@ func printSearchResults(results []*models.SearchResult, query string) {
 		// Create styled search result entry
 		searchEntry := createSearchResultEntry(result, i+1)
 		fmt.Println(searchEntry)
-		
+
 		// Add spacing between results
 		if i < len(results)-1 {
 			fmt.Println()
 		}
 	}
-	
+
 	// Footer
 	fmt.Println()
 	fmt.Println(styles.RenderSeparator())
@@ -73,17 +73,17 @@ func createSearchResultEntry(result *models.SearchResult, index int) string {
 		Foreground(styles.Primary).
 		Bold(true).
 		Render(fmt.Sprintf("#%d", index))
-	
+
 	// ID and date
 	idText := styles.IDStyle.Render(result.ID)
 	dateText := styles.DateStyle.Render(result.CreatedAt.Format("2006-01-02"))
-	
+
 	// Title with highlighting potential
 	titleText := styles.ContentStyle.Bold(true).Render(result.Title)
-	
+
 	// Mode badge
 	modeText := styles.GetModeStyle(result.Mode).Render(result.Mode)
-	
+
 	// Relevance score (if available)
 	scoreText := ""
 	if result.Rank > 0 {
@@ -92,7 +92,7 @@ func createSearchResultEntry(result *models.SearchResult, index int) string {
 			Foreground(styles.Accent).
 			Render(fmt.Sprintf("score: %s", score))
 	}
-	
+
 	// First line: rank, ID, date, mode, title
 	firstLine := lipgloss.JoinHorizontal(
 		lipgloss.Left,
@@ -106,7 +106,7 @@ func createSearchResultEntry(result *models.SearchResult, index int) string {
 		"  ",
 		titleText,
 	)
-	
+
 	if scoreText != "" {
 		firstLine = lipgloss.JoinHorizontal(
 			lipgloss.Left,
@@ -115,7 +115,7 @@ func createSearchResultEntry(result *models.SearchResult, index int) string {
 			scoreText,
 		)
 	}
-	
+
 	// Second line: tags
 	secondLine := ""
 	if len(result.Tags) > 0 {
@@ -124,7 +124,7 @@ func createSearchResultEntry(result *models.SearchResult, index int) string {
 			MarginLeft(4).
 			Render("tags: " + tagsText)
 	}
-	
+
 	// Third line: snippet (if available)
 	thirdLine := ""
 	if result.Snippet != "" && result.Snippet != result.Title {
@@ -138,7 +138,7 @@ func createSearchResultEntry(result *models.SearchResult, index int) string {
 			Italic(true).
 			Render("\"" + snippetText + "\"")
 	}
-	
+
 	// Combine all lines
 	lines := []string{firstLine}
 	if secondLine != "" {
@@ -147,6 +147,6 @@ func createSearchResultEntry(result *models.SearchResult, index int) string {
 	if thirdLine != "" {
 		lines = append(lines, thirdLine)
 	}
-	
+
 	return lipgloss.JoinVertical(lipgloss.Left, lines...)
 }

@@ -105,7 +105,7 @@ func (r *StatsRepository) GetTagUsage(limit int) (map[string]int, error) {
 		LEFT JOIN note_tags nt ON t.id = nt.tag_id
 		GROUP BY t.id, t.name
 		ORDER BY usage_count DESC`
-	
+
 	if limit > 0 {
 		query += fmt.Sprintf(" LIMIT %d", limit)
 	}
@@ -132,7 +132,7 @@ func (r *StatsRepository) GetTagUsage(limit int) (map[string]int, error) {
 // GetRecentActivity returns notes created in the last N days
 func (r *StatsRepository) GetRecentActivity(days int) ([]*models.Note, error) {
 	since := time.Now().AddDate(0, 0, -days)
-	
+
 	query := `
 		SELECT n.id, n.title, n.mode, n.file_path, n.file_name, n.content_hash,
 			n.created_at, n.updated_at, n.content_preview, n.word_count,
@@ -154,12 +154,12 @@ func (r *StatsRepository) GetRecentActivity(days int) ([]*models.Note, error) {
 	for rows.Next() {
 		note := &models.Note{}
 		var tagsStr string
-		
+
 		err := rows.Scan(
 			&note.ID, &note.Title, &note.Mode, &note.FilePath, &note.FileName,
 			&note.ContentHash, &note.CreatedAt, &note.UpdatedAt,
 			&note.ContentPreview, &note.WordCount, &tagsStr)
-		
+
 		if err != nil {
 			return nil, fmt.Errorf("failed to scan recent note: %w", err)
 		}
