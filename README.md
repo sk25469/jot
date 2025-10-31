@@ -17,7 +17,7 @@ A lightning-fast terminal-based note-taking and journaling CLI that feels like g
 ### From Source
 
 ```bash
-git clone https://github.com/sahilsarwar/jot.git
+git clone https://github.com/sk25469/jot.git
 cd jot
 go build -o jot
 sudo mv jot /usr/local/bin/
@@ -26,7 +26,7 @@ sudo mv jot /usr/local/bin/
 ### Quick Install Script
 
 ```bash
-go install github.com/sahilsarwar/jot@latest
+go install github.com/sk25469/jot@latest
 ```
 
 ## Usage

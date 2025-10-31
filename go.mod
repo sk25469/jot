@@ -1,4 +1,4 @@
-module github.com/sahilsarwar/jot
+module github.com/sk25469/jot
 
 go 1.21
 

@@ -3,7 +3,7 @@ package cmd
 import (
 	"strings"
 
-	"github.com/sahilsarwar/jot/app"
+	"github.com/sk25469/jot/app"
 	"github.com/spf13/cobra"
 )
 

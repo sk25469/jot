@@ -11,7 +11,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/sahilsarwar/jot/config"
+	"github.com/sk25469/jot/config"
 )
 
 type Note struct {

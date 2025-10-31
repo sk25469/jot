@@ -10,9 +10,9 @@ import (
 	"strings"
 	"time"
 
-	"github.com/sahilsarwar/jot/config"
-	"github.com/sahilsarwar/jot/database"
-	"github.com/sahilsarwar/jot/models"
+	"github.com/sk25469/jot/config"
+	"github.com/sk25469/jot/database"
+	"github.com/sk25469/jot/models"
 )
 
 // NoteService handles business logic for notes

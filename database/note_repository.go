@@ -6,7 +6,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/sahilsarwar/jot/models"
+	"github.com/sk25469/jot/models"
 )
 
 // NoteRepository handles database operations for notes

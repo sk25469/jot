@@ -4,9 +4,9 @@ import (
 	"fmt"
 	"path/filepath"
 
-	"github.com/sahilsarwar/jot/config"
-	"github.com/sahilsarwar/jot/database"
-	"github.com/sahilsarwar/jot/service"
+	"github.com/sk25469/jot/config"
+	"github.com/sk25469/jot/database"
+	"github.com/sk25469/jot/service"
 )
 
 // App holds the application dependencies

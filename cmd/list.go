@@ -4,9 +4,9 @@ import (
 	"fmt"
 
 	"github.com/charmbracelet/lipgloss"
-	"github.com/sahilsarwar/jot/app"
-	"github.com/sahilsarwar/jot/models"
-	"github.com/sahilsarwar/jot/styles"
+	"github.com/sk25469/jot/app"
+	"github.com/sk25469/jot/models"
+	"github.com/sk25469/jot/styles"
 	"github.com/spf13/cobra"
 )
 
