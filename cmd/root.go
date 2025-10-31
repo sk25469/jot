@@ -5,6 +5,7 @@ import (
 	"os"
 
 	"github.com/sahilsarwar/jot/app"
+	"github.com/sahilsarwar/jot/styles"
 	"github.com/spf13/cobra"
 )
 
@@ -26,7 +27,8 @@ All notes are stored as plain markdown files in ~/.jot/notes/`,
 
 func Execute() error {
 	if err := rootCmd.Execute(); err != nil {
-		fmt.Fprintf(os.Stderr, "Error: %v\n", err)
+		errorMsg := styles.ErrorStyle.Render(fmt.Sprintf("Error: %v", err))
+		fmt.Fprintf(os.Stderr, "%s\n", errorMsg)
 		return err
 	}
 	return nil

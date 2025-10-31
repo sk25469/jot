@@ -4,8 +4,10 @@ import (
 	"fmt"
 	"sort"
 
+	"github.com/charmbracelet/lipgloss"
 	"github.com/sahilsarwar/jot/app"
 	"github.com/sahilsarwar/jot/models"
+	"github.com/sahilsarwar/jot/styles"
 	"github.com/spf13/cobra"
 )
 
@@ -27,27 +29,76 @@ func runStatsCommand(cmd *cobra.Command, args []string) error {
 }
 
 func printNoteStatistics(stats *models.StatsResult) {
-	fmt.Printf("📊 Note Statistics\n\n")
-	fmt.Printf("Total notes: %d\n", stats.TotalNotes)
-	fmt.Printf("This week: %d\n", stats.NotesThisWeek)
-	fmt.Printf("Created today: %d\n", stats.CreatedToday)
-	fmt.Printf("Total words: %d\n", stats.WordCount)
+	// Beautiful header
+	header := styles.RenderHeader("Statistics")
+	fmt.Println(header)
+	
+	// Create main stats section
+	mainStats := createMainStatsSection(stats)
+	fmt.Println(mainStats)
+	fmt.Println()
 
+	// Tags section
 	if len(stats.TagCounts) > 0 {
-		printTopTags(stats.TagCounts)
+		tagsSection := createTagsSection(stats.TagCounts)
+		fmt.Println(tagsSection)
+		fmt.Println()
 	}
 
+	// Modes section
 	if len(stats.ModeStats) > 0 {
-		fmt.Printf("\nModes:\n")
-		for mode, count := range stats.ModeStats {
-			fmt.Printf("  %s (%d)\n", mode, count)
-		}
+		modesSection := createModesSection(stats.ModeStats)
+		fmt.Println(modesSection)
 	}
 }
 
-func printTopTags(tagCounts map[string]int) {
-	fmt.Printf("\nMost used tags:\n")
+func createMainStatsSection(stats *models.StatsResult) string {
+	// Create formatted stat entries
+	totalText := fmt.Sprintf("%s %s",
+		styles.StatsLabelStyle.Render("Total notes:"),
+		styles.StatsValueStyle.Render(fmt.Sprintf("%d", stats.TotalNotes)))
 	
+	weeklyText := fmt.Sprintf("%s %s",
+		styles.StatsLabelStyle.Render("This week:"),
+		styles.StatsValueStyle.Render(fmt.Sprintf("%d", stats.NotesThisWeek)))
+	
+	todayText := fmt.Sprintf("%s %s",
+		styles.StatsLabelStyle.Render("Created today:"),
+		styles.StatsValueStyle.Render(fmt.Sprintf("%d", stats.CreatedToday)))
+	
+	wordsText := fmt.Sprintf("%s %s",
+		styles.StatsLabelStyle.Render("Total words:"),
+		styles.StatsValueStyle.Render(fmt.Sprintf("%d", stats.WordCount)))
+	
+	// Progress bar for weekly activity
+	progressBar := ""
+	if stats.TotalNotes > 0 {
+		progressBar = styles.RenderProgress(stats.NotesThisWeek, 10) // Assuming target of 10 notes per week
+	}
+	
+	// Combine all stats
+	statsContent := lipgloss.JoinVertical(
+		lipgloss.Left,
+		totalText,
+		weeklyText,
+		todayText,
+		wordsText,
+	)
+	
+	if progressBar != "" {
+		statsContent = lipgloss.JoinVertical(
+			lipgloss.Left,
+			statsContent,
+			"",
+			lipgloss.NewStyle().Foreground(styles.Subtle).Render("Weekly Activity:"),
+			progressBar,
+		)
+	}
+	
+	return styles.RenderBox("📊 Overview", statsContent)
+}
+
+func createTagsSection(tagCounts map[string]int) string {
 	// Sort tags by count
 	type tagCount struct {
 		tag   string
@@ -61,12 +112,63 @@ func printTopTags(tagCounts map[string]int) {
 		return tagList[i].count > tagList[j].count
 	})
 
-	// Show top 5 tags
-	limit := 5
+	// Create styled tag entries
+	var tagEntries []string
+	limit := 8 // Show top 8 tags
 	if len(tagList) < limit {
 		limit = len(tagList)
 	}
+	
 	for i := 0; i < limit; i++ {
-		fmt.Printf("  %s (%d)\n", tagList[i].tag, tagList[i].count)
+		tag := tagList[i]
+		tagStyle := styles.GetTagStyle(tag.tag)
+		countStyle := styles.StatsValueStyle
+		
+		entry := lipgloss.JoinHorizontal(
+			lipgloss.Left,
+			tagStyle.Render(tag.tag),
+			"  ",
+			countStyle.Render(fmt.Sprintf("(%d)", tag.count)),
+		)
+		tagEntries = append(tagEntries, entry)
 	}
+	
+	// Arrange tags in a grid (2 columns)
+	var rows []string
+	for i := 0; i < len(tagEntries); i += 2 {
+		if i+1 < len(tagEntries) {
+			row := lipgloss.JoinHorizontal(
+				lipgloss.Left,
+				tagEntries[i],
+				"    ", // Spacing between columns
+				tagEntries[i+1],
+			)
+			rows = append(rows, row)
+		} else {
+			rows = append(rows, tagEntries[i])
+		}
+	}
+	
+	tagsContent := lipgloss.JoinVertical(lipgloss.Left, rows...)
+	return styles.RenderBox("🏷️  Popular Tags", tagsContent)
+}
+
+func createModesSection(modeStats map[string]int) string {
+	var modeEntries []string
+	
+	for mode, count := range modeStats {
+		modeStyle := styles.GetModeStyle(mode)
+		countStyle := styles.StatsValueStyle
+		
+		entry := lipgloss.JoinHorizontal(
+			lipgloss.Left,
+			modeStyle.Render(mode),
+			"  ",
+			countStyle.Render(fmt.Sprintf("(%d)", count)),
+		)
+		modeEntries = append(modeEntries, entry)
+	}
+	
+	modesContent := lipgloss.JoinVertical(lipgloss.Left, modeEntries...)
+	return styles.RenderBox("📝 Note Modes", modesContent)
 }
